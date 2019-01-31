@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using MeuTrabalho.Models;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Data;
 using System.Data.SqlClient;
 
 namespace MeuTrabalho.Controllers
@@ -15,7 +11,7 @@ namespace MeuTrabalho.Controllers
 
         public HomeController()
         {
-            this.connection = new SqlConnection("Server=saturnoserver.database.windows.net;Database=MEUDB;User=app;Password=homework-jan31;Max Pool Size=10");
+            this.connection = new SqlConnection("Server=.;Database=MEUDB;User=sa;Password=123456;");
         }
 
         public IActionResult Index()
@@ -40,10 +36,14 @@ namespace MeuTrabalho.Controllers
 
             try
             {
-                this.connection.Open();
+                if (this.connection.State == System.Data.ConnectionState.Closed)
+                    this.connection.Open();
 
                 SqlCommand sql = new SqlCommand("INSERT tbLog VALUES ('about')", this.connection);
-                sql.ExecuteReader();                
+                sql.ExecuteNonQuery();
+
+                if (this.connection.State == System.Data.ConnectionState.Open)
+                    this.connection.Close();
             }
             catch(Exception ex)
             {
@@ -59,12 +59,14 @@ namespace MeuTrabalho.Controllers
 
             try
             {
-                SqlConnection conn1 = this.connection;
+                if (this.connection.State == ConnectionState.Closed)
+                    this.connection.Open();
 
-                SqlCommand sql = new SqlCommand("INSERT tbLog VALUES ('contact')");
-                sql.Connection = conn1;
+                SqlCommand sql = new SqlCommand("INSERT tbLog VALUES ('contact')", this.connection);
+                sql.ExecuteNonQuery();
 
-                sql.ExecuteScalar();
+                if (this.connection.State == ConnectionState.Open)
+                    this.connection.Close();
             }
             catch(Exception ex)
             {

@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using MeuTrabalho.Models;
 using Microsoft.AspNetCore.Mvc;
-using MeuTrabalho.Models;
+using System;
+using System.Data;
 using System.Data.SqlClient;
 
 namespace MeuTrabalho.Controllers
@@ -23,13 +20,19 @@ namespace MeuTrabalho.Controllers
         {
             try
             {
-                SqlConnection connection = new SqlConnection("Server=saturnoserver.database.windows.net;Database=MEUDB;User=aclogin;Password=homework-jan31");
-                SqlCommand cmd = new SqlCommand($"SELECT username FROM tbLogin WHERE email='{model.Email}' AND pwd='{model.Password}'", connection);
+                SqlConnection connection = new SqlConnection("Server=.;Database=MEUDB;User=sa;Password=123456;");
+                SqlCommand cmd = new SqlCommand($"SELECT username FROM tbLogin WHERE email=@Email AND pwd=@Pass", connection);
 
-                connection.Open();
+                cmd.Parameters.Add("@Email", SqlDbType.VarChar).Value = model.Email;
+                cmd.Parameters.Add("@Pass", SqlDbType.VarChar).Value = model.Password;
+
+                if (connection.State == ConnectionState.Closed)
+                    connection.Open();
+
                 string username = (string)cmd.ExecuteScalar();
 
-                connection.Close();
+                if (connection.State == ConnectionState.Open)
+                    connection.Close();
 
                 return RedirectToAction("Dashboard", "Home", new { name = username});
             }

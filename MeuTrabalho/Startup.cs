@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using MeuTrabalho.Repo;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +18,12 @@ namespace MeuTrabalho
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            string sqlLogin = Configuration["SQL:Login"];
+            string sqlLog = Configuration["SQL:Log"];
+
+            services.AddSingleton<ILoginRepository>(new LoginRepository(sqlLogin));
+            services.AddSingleton<ILogRepository>(new LogRepository(sqlLog));
+
             services.AddMvc();
         }
 

@@ -1,13 +1,17 @@
 ﻿using MeuTrabalho.Models;
+using MeuTrabalho.Repo;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Data;
-using System.Data.SqlClient;
 
 namespace MeuTrabalho.Controllers
 {
     public class AccountController : Controller
     {
+        private ILoginRepository _login;
+        public AccountController(ILoginRepository loginRepository)
+        {
+            _login = loginRepository;
+        }
+
         [HttpGet]
         public IActionResult Index()
         {
@@ -18,28 +22,11 @@ namespace MeuTrabalho.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Index(LoginViewModel model)
         {
-            try
-            {
-                SqlConnection connection = new SqlConnection("Server=.;Database=MEUDB;User=sa;Password=123456;");
-                SqlCommand cmd = new SqlCommand($"SELECT username FROM tbLogin WHERE email=@Email AND pwd=@Pass", connection);
-
-                cmd.Parameters.Add("@Email", SqlDbType.VarChar).Value = model.Email;
-                cmd.Parameters.Add("@Pass", SqlDbType.VarChar).Value = model.Password;
-
-                if (connection.State == ConnectionState.Closed)
-                    connection.Open();
-
-                string username = (string)cmd.ExecuteScalar();
-
-                if (connection.State == ConnectionState.Open)
-                    connection.Close();
-
-                return RedirectToAction("Dashboard", "Home", new { name = username});
-            }
-            catch(Exception ex)
-            {
+            /// TODO: Pegar o usuário
+            if (_login.UsuarioValido(model.Email, model.Password))
+                return RedirectToAction("Dashboard", "Home", new { name = "" });
+            else
                 return View(model);
-            }
         }
     }
 }
